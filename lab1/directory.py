@@ -1,13 +1,14 @@
 class Directory:
-    def __init__(self, dirName, content = [], maxElNumber = 0, parent = None) -> None:
+    def __init__(self, dirName, maxElNumber = 0, parent = None):
         self.name = dirName
-        self.content = content
+        self.content = []
         self.maxElementsNumber = maxElNumber
         self.parent = parent
-        pass
+
 
     def __delete_dir__(self) -> None:
         del self
+        return
 
 
     def __get_content_list__(self) -> None:
@@ -27,16 +28,20 @@ class Directory:
         return file
 
     def __move_content_to_another_dir__(self, item, path) -> None:
-        content_len = len(self.content)
-        self.content = list(filter(lambda x: item in x, self.content))
-        if content_len == self.content:
-            return item + 'does not exist in the' + self.name
+        if type(path) != Directory or None:
+            raise OverflowError('incorrect path' + path)
 
-        if type(path) != Directory:
-            return 'incorrect path' + path
+        isitemexist = any(item in self.content for item in self.content)
+        if isitemexist:
+            if len(path.content) + 1 > path.maxElementsNumber:
+                raise OverflowError('there are no space for new file in directory: ' + path.name)
 
-        if len(path.content) >= path.maxElementsNumber:
-            return 'there are no space for new file in directory: ' + path.name
+            self.content.pop(self.content.index(item))
 
-        return path.content.append(item)
+            path.content.append(item)
+            item.parent = path
+        else:
+            raise OverflowError(item.name + 'does not exist in the ' + self.name)
+
+        return
         

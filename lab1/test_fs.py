@@ -1,5 +1,4 @@
 import pytest
-import types
 # from io import _io
 import io
 from directory import Directory
@@ -8,10 +7,7 @@ from log_text_file import LogTextFile
 from buffer_file import BufferFile
 
 
-class TestDirectory:
-    mainDirectory = Directory('main')
-    main = ""
-
+class TestDirectory: 
     def test_directory_init(self):
         name = 'first_Directory'
         directory = Directory(name, maxElNumber = 5)
@@ -41,41 +37,26 @@ class TestDirectory:
         
     def test_directory_move(self):
         directory = Directory('for_move')
-        assert type(directory.__move_content_to_another_dir__('file1', "new_dir")) == str
+        file_for_move = BinaryFile('file1')
+        file2 = BinaryFile('file2')
+        dir_fo_move = Directory('newDir', maxElNumber = 1)
 
-        directory.content.append('file1')
-        assert type(directory.__move_content_to_another_dir__('file1', "new_dir")) == str
-
-        newDir = Directory('newDir', maxElNumber = 1)
-        directory.__move_content_to_another_dir__('file1', newDir)
-        assert len(newDir.content) == 1
-
-        assert type(directory.__move_content_to_another_dir__('file1', newDir)) == str
+        directory.content.append(file_for_move)
+        with pytest.raises(OverflowError):
+            directory.__move_content_to_another_dir__(file_for_move, "new_dir")
         
-        assert type(directory.__move_content_to_another_dir__('file2', newDir)) == str
+        directory.__move_content_to_another_dir__(file_for_move, dir_fo_move)
+        assert len(dir_fo_move.content) == 1
 
+        with pytest.raises(OverflowError):
+            directory.__move_content_to_another_dir__(file2, dir_fo_move)
 
-
-# class TestBinaryFile:
-#     binaryFile = BinaryFile('binary_file', 'any content', )
-
-#     def test_binary_file_init(self):
-#         name = 'binary_file1'
-#         binaryFile = BinaryFile(name)
-
-#         assert binaryFile.name == name
+        dir_for_move2 = Directory('newDir2', maxElNumber = 1)
+        with pytest.raises(OverflowError):
+            directory.__move_content_to_another_dir__(file_for_move, dir_for_move2)
 
         
-#     def test_directory_delete(self):
-#         directory = Directory('main')
-#         directory.__delete_dir__(self)
-#         assert directory != None
 
-#     def test_list_of_directory_content(self):
-#         pass
-
-#     def test_directory_init(self):
-#         pass
 
 
 # class TestLogTextFile:
