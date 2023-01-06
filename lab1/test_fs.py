@@ -1,4 +1,7 @@
 import pytest
+import types
+# from io import _io
+import io
 from directory import Directory
 from binary_file import BinaryFile
 from log_text_file import LogTextFile
@@ -10,11 +13,13 @@ class TestDirectory:
     main = ""
 
     def test_directory_init(self):
-        name = 'new_name'
-        maxElementsNumber = 5
-        directory = Directory(name, maxElementsNumber)
+        name = 'first_Directory'
+        directory = Directory(name, maxElNumber = 5)
 
         assert directory.name == name
+        assert directory != None
+        assert len(directory.content) == 0 
+        assert pytest.raises(OverflowError)
 
         
     def test_directory_delete(self):
@@ -25,16 +30,29 @@ class TestDirectory:
     def test_list_of_directory_content(self):
         directory = Directory('main')
         
-        assert directory.__get_content_list__() == 0
+        file = directory.__get_content_list__()
+        assert type(file) == str
 
         directory.content = ['file1', Directory('1')]
-        assert directory.__get_content_list__() is not None
-
+        
+        # assert isinstance(file, io.TextIOWrapper)
+        file = directory.__get_content_list__()
+        assert type(file) == str
+        
     def test_directory_move(self):
         directory = Directory('for_move')
-        newDir = Directory('newDir', maxElNumber = 5)
+        assert type(directory.__move_content_to_another_dir__('file1', "new_dir")) == str
+
+        directory.content.append('file1')
+        assert type(directory.__move_content_to_another_dir__('file1', "new_dir")) == str
+
+        newDir = Directory('newDir', maxElNumber = 1)
         directory.__move_content_to_another_dir__('file1', newDir)
-        assert len(newDir.content) != 0
+        assert len(newDir.content) == 1
+
+        assert type(directory.__move_content_to_another_dir__('file1', newDir)) == str
+        
+        assert type(directory.__move_content_to_another_dir__('file2', newDir)) == str
 
 
 
