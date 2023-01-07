@@ -1,3 +1,7 @@
+# from binary_file import BinaryFile
+# from log_text_file import LogTextFile
+# from buffer_file import BufferFile
+
 class Directory:
     def __init__(self, dirName, maxElNumber = 0, parent = None):
         self.name = dirName
@@ -20,10 +24,7 @@ class Directory:
         # for item in self.content:
         #     file.write(item + "\n")
         for item in self.content:
-            if type(item) == Directory:
                 file = file + item.name + "\n"
-            else:
-                file = file + item + "\n"
 
         return file
 

@@ -1,17 +1,31 @@
+from directory import Directory
+
 class LogTextFile:
-    def __init__(self, dirName, maxElNumber = 0, parent = None) -> None:
-        self.name = dirName
-        pass
+    def __init__(self, fileName, parent = None) -> None:
+        self.name = fileName
+        self.parent = parent
+        self.content = ""
+        if type(parent) is Directory:
+            parent.content.append(self)
 
-    def __delete_file__(self) -> None:
-        self is None
-        pass
+    def __delete_log_file__(self) -> None:
+        self.parent.content.pop(self.parent.content.index(self))
+        del self
 
-    def __move_file__(self) -> None:
-        pass
+    def __move_log_file__(self, path) -> None:
+        if type(path) != Directory or None:
+            raise OverflowError('incorrect path' + path)
 
-    def __read_file__(self) -> None:
-        pass
+        if len(path.content) + 1 > path.maxElementsNumber:
+            raise OverflowError('there are no space for new file in directory: ' + path.name)
 
-    def __add_line_to_the_end__(self) -> None:
-        pass
+        self.parent.content.pop(self.parent.content.index(self))
+        path.content.append(self)
+        self.parent = path
+
+    def __read_log_file__(self) -> None:
+        return self.content
+
+    def __append_new_line__(self, line) -> None:
+        self.content = self.content + line + '\n'
+        return

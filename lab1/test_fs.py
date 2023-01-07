@@ -1,5 +1,4 @@
 import pytest
-# from io import _io
 import io
 from directory import Directory
 from binary_file import BinaryFile
@@ -30,7 +29,7 @@ class TestDirectory:
         file = directory.__get_content_list__()
         assert type(file) == str
 
-        directory.content = ['file1', Directory('1')]
+        directory.content = [Directory('1'), BinaryFile("1")]
         
         # assert isinstance(file, io.TextIOWrapper)
         file = directory.__get_content_list__()
@@ -71,7 +70,7 @@ class TestBinaryFile:
         binaryFile = BinaryFile('binary_file', directory)
 
         binaryFile.__delete_binory_file__()
-        assert any(item in directory.content for item in directory.content) is False
+        assert any(binaryFile in directory.content for binaryFile in directory.content) is False
 
     def test_move_binary_file(self):
         directory = Directory('dir1')
@@ -79,6 +78,7 @@ class TestBinaryFile:
 
         binaryFile.__move_binory_file__(self.directory2)
         assert any(binaryFile in self.directory2.content for binaryFile in self.directory2.content) is True
+        assert any(binaryFile in directory.content for binaryFile in directory.content) is False
 
 
     def test_read_binary_file(self):
@@ -89,51 +89,82 @@ class TestBinaryFile:
         assert type(binaryFile.__read_binory_file__()) is str
 
 
-# class TestLogTextFile:
-#     mainDirectory = Directory('main')
-#     main = ""
+class TestLogTextFile:
+    directory1 = Directory('dir1', 2)
+    directory2 = Directory('dir2', 2)
 
-#     def test_directory_init(self):
-#         name = 'new_name'
-#         maxElementsNumber = 5
-#         directory = Directory(name, maxElementsNumber)
+    def test_log_file_init(self):
+        logFile = LogTextFile('log_file1', self.directory1)
 
-#         assert directory.name == name
-
+        assert len(self.directory1.content) != 0
         
-#     def test_directory_delete(self):
-#         directory = Directory('main')
-#         directory.__delete_dir__(self)
-#         assert directory != None
+    def test_log_file_delete(self):
+        directory = Directory('dir1')
+        logFile = LogTextFile('log_file1', directory)
 
-#     def test_list_of_directory_content(self):
-#         pass
+        logFile.__delete_log_file__()
+        assert any(logFile in directory.content for logFile in directory.content) is False
 
-#     def test_directory_init(self):
-#         pass
+    def test_move_log_file(self):
+        directory = Directory('dir1')
+        logFile = LogTextFile('log_file1', directory)
+
+        logFile.__move_log_file__(self.directory2)
+        assert any(logFile in self.directory2.content for logFile in self.directory2.content) is True
+        assert any(logFile in directory.content for logFile in directory.content) is False
 
 
-# class TestBufferFile:
-    # mainDirectory = Directory('main')
-    # main = ""
+    def test_read_log_file(self):
+        content = 'binary file content' + '\n'
+        logFile = LogTextFile('binary_file1')
+        logFile.content = content
 
-    # def test_directory_init(self):
-    #     name = 'new_name'
-    #     maxElementsNumber = 5
-    #     directory = Directory(name, maxElementsNumber)
+        assert type(logFile.__read_log_file__()) is str
 
-    #     assert directory.name == name
+        line1 = 'line1'
+        line2 = 'line2'
+        logFile.__append_new_line__(line1)
+        logFile.__append_new_line__(line2)
 
+        assert logFile.__read_log_file__() == content + line1 + '\n' + line2 + '\n'
+
+class TestBufferFile:
+    directory1 = Directory('dir1', 2)
+    directory2 = Directory('dir2', 2)
+
+    def test_log_file_init(self):
+        bufferFile = BufferFile('log_file1', 0, self.directory1)
+
+        assert len(self.directory1.content) != 0
         
-    # def test_directory_delete(self):
-    #     directory = Directory('main')
-    #     directory.__delete_dir__(self)
-    #     assert directory != None
+    def test_log_file_delete(self):
+        directory = Directory('dir1')
+        bufferFile = BufferFile('log_file1', 0, directory)
 
-    # def test_list_of_directory_content(self):
-    #     pass
+        bufferFile.__delete_buffer_file__()
+        assert any(bufferFile in directory.content for bufferFile in directory.content) is False
 
-    # def test_directory_init(self):
-    #     pass
+    def test_move_log_file(self):
+        directory = Directory('dir1')
+        bufferFile = BufferFile('log_file1', parent = directory)
+
+        bufferFile.__move_buffer_file__(self.directory2)
+        assert any(bufferFile in self.directory2.content for bufferFile in self.directory2.content) is True
+        assert any(bufferFile in directory.content for bufferFile in directory.content) is False
+
+    def test_buffer_file_push__(self):
+        pass
+
+    def test_buffer_file_push_and_consume__(self):
+        directory = Directory('dir1')
+        bufferFile = BufferFile('log_file1', 1, parent = directory)
+
+        bufferFile.__push_element__('element1')
+
+        with pytest.raises(OverflowError):
+            bufferFile.__push_element__('element1')
+
+        bufferFile.__consume_first_line__()
+        assert len(bufferFile.content) == 0
 
 
