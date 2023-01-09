@@ -1,3 +1,7 @@
+# from binary_file import BinaryFile
+# from log_text_file import LogTextFile
+# from buffer_file import BufferFile
+
 class Directory:
     def __init__(self, dirName, maxElNumber = 0, parent = None):
         self.name = dirName
