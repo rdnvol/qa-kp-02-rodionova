@@ -1,18 +1,86 @@
-from fs_api import app # Flask instance of the API
+from fs_api import app
 import json
+from directory import Directory
+from binary_file import BinaryFile
+from log_text_file import LogTextFile
+from buffer_file import BufferFile
 
-def test_index_route():
-    response = app.test_client().get('/directory')
+class TestDirectoryApi():
+    
+    def test_create_directory(self):
+        response = app.test_client().post('/directory', json={
+            "name": "directory1",
+            "maxElNumber": 4,
+        })
+        assert response.data != None
 
-    assert response.status_code == 200
-    res = json.loads(response.data.decode('utf-8'))
-    print(response.data.decode('utf-8'), res)
-    assert 'directory' in res
+    def test_put_directory_(self):
+        response = app.test_client().put('/directory', json={
+            "name": "directory1",
+            "content": [
+                {
+                    "operation": "create",
+                    "type":"dir", 
+                    "name":"child", 
+                    "maxElNumber": 1
+                }, 
+                {
+                    "operation": "create",
+                    "type":"dir", 
+                    "name":"childForDel", 
+                    "maxElNumber": 2
+                }, 
+                {
+                    "operation": "create",
+                    "type":"binaryFile", 
+                    "name":"binary_file", 
+                }
+            ]
+        })
+        
+        res = json.loads(response.data.decode('utf-8'))
+        assert res == {'message': 'directory is updated'}
 
-def test_post_directory():
-    response = app.test_client().post('/directory', json={
-        "name": "test",
-        "maxElNumber": 4
-    })
-    print('responce', response.data)
-    assert response.data != None
+        response = app.test_client().put('/directory', json={
+            "name": "directory1",
+            "content": [
+                {
+                    "operation": "move",
+                    "type": "dir",
+                    "name":"child", 
+                    "path": "childForDel"
+                }
+                # {
+                #     "operation": "move",
+                #     "type": "binaryFile",
+                #     "name":"binary_file", 
+                #     "path": "childForDel"
+                # }
+            ]
+        })
+
+        res = json.loads(response.data.decode('utf-8'))
+        assert res == {'message': 'directory is updated'}
+
+
+    def test_get_directory_list(self):
+        response = app.test_client().get('/directory', json={
+            "name": "directory1"
+        })
+
+        res = json.loads(response.data.decode('utf-8'))
+        assert res == '\nchildForDel\nbinary_file\n'
+
+    def test_delete_directory_(self):
+        response = app.test_client().delete('/directory', json={
+            "name": "test"
+        })
+        res = json.loads(response.data.decode('utf-8'))
+        assert res == {'message': 'directory is not exist'}
+
+        response = app.test_client().delete('/directory', json={
+            "name": "childForDel"
+        })
+        res = json.loads(response.data.decode('utf-8'))
+        assert res == {'message': 'directory deleted'}
+

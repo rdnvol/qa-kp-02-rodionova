@@ -1,7 +1,3 @@
-# from binary_file import BinaryFile
-# from log_text_file import LogTextFile
-# from buffer_file import BufferFile
-
 class Directory:
     def __init__(self, dirName, maxElNumber = 0, parent = None):
         self.name = dirName
@@ -11,6 +7,9 @@ class Directory:
 
 
     def __delete_dir__(self) -> None:
+        self.parent.content.pop(self.parent.content.index(self))
+        for content_item in self.content:
+            del content_item
         del self
         return
 
@@ -19,10 +18,7 @@ class Directory:
         if len(self.content) == 0:
             return self.name + 'has no files or subdirectories'
 
-        # file = open(self.name + 'list', "w")
-        file = self.name + '\n'
-        # for item in self.content:
-        #     file.write(item + "\n")
+        file = '\n'
         for item in self.content:
                 file = file + item.name + "\n"
 
@@ -30,19 +26,20 @@ class Directory:
 
     def __move_content_to_another_dir__(self, item, path) -> None:
         if type(path) != Directory or None:
-            raise OverflowError('incorrect path' + path)
+            return 'incorrect path' + path
 
         isitemexist = any(item in self.content for item in self.content)
         if isitemexist:
             if len(path.content) + 1 > path.maxElementsNumber:
-                raise OverflowError('there are no space for new file in directory: ' + path.name)
+                return 'there are no space for new file in directory: ' + path.name
 
             self.content.pop(self.content.index(item))
 
             path.content.append(item)
             item.parent = path
+            return item.name + " is moved"
         else:
-            raise OverflowError(item.name + 'does not exist in the ' + self.name)
+            return item.name + 'does not exist in the ' + self.name
 
-        return
+
         
