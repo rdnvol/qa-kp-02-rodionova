@@ -130,12 +130,12 @@ class DirectoryApi(Resource):
         if res == None:
             return jsonify({'message': 'directory is not exist'})
         else:
-            p = res.parent
-            for i in p.content:
-                print(i.name)
+            # p = res.parent
+            # for i in p.content:
+            #     print(i.name)
             res.__delete_dir__()
-            file = search(parent, "binary_file")
-            print(file)
+            # file = search(parent, "binary_file")
+            # print(file)
             return jsonify({'message': 'directory deleted'})
 
 
@@ -143,21 +143,55 @@ class BinaryFileApi(Resource):
     def __init__(self):
         self.binary = binary
 
-    def get(self):
-        return jsonify({"directory": "true"})
-
     def post(self): 
         data = request.get_json() 
         
-        directory = Directory(data["name"], data["maxElNumber"])
+        binaryFile = BinaryFile(data["name"], parent = parent)
+        binaryFile.content = "It is 'BinaryFile2' file"
         
-        return jsonify({'message': 'Directory is successfully created'})
+        return jsonify({'message': 'Binary file is successfully created'})
+
+
+    def get(self):
+        data = request.get_json() 
+
+        res = search(parent, data["name"])
+        if res == None:
+            return jsonify({'message': data["name"] + ' is not exist'})
+        else:
+            res = res.__read_binory_file__()
+            return jsonify({'message': res})
 
     def put(self):
-        pass    
+        data = request.get_json() 
+
+        fileForMove = search(parent, data["name"])
+        
+        if fileForMove == None:
+            return jsonify({'message': data["name"] + ' is not exist'})
+        else:
+            path = search(parent, data["path"])
+            if path == None:
+                return jsonify({'message': data["path"] + ' is not exist'})
+            else:
+                fileForMove.__move_binory_file__(path)
+                for i in path.content:
+                    print(i.name)
+                return jsonify({'message': fileForMove.name + ' was moved to ' + path.name})
+
 
     def delete(self):
-        pass
+        data = request.get_json() 
+
+        fileForDelete = search(parent, data["name"])
+        if fileForDelete == None:
+            return jsonify({'message': data["name"] + ' is not exist'})
+        else:
+            path = fileForDelete.parent
+            fileForDelete.__delete_binory_file__()
+            for i in path.content:
+                print(i.name)
+            return jsonify({'message': fileForDelete.name + ' removed'})
 
 class BufferApi(Resource):
     def __init__(self):
