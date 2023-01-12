@@ -141,7 +141,7 @@ class TestBinaryFileApi():
         res = json.loads(response.data.decode('utf-8'))
         assert res == {'message':'dirdirdir is not exist'}
 
-    def test_delete_directory_(self):
+    def test_delete_binary_file_(self):
         response = app.test_client().delete('/binaryfile', json={
             "name": "binary_file"
         })
@@ -154,3 +154,73 @@ class TestBinaryFileApi():
         res = json.loads(response.data.decode('utf-8'))
         assert res == {'message':'binary_file is not exist'}
 
+
+class TestLogFileApi():
+    
+    def test_create_binary_file(self):
+        response = app.test_client().post('/logtextfile', json={
+            "name": "log_file_1",
+            "parent": "parent"
+        })
+        assert response.data != None
+
+    def test_get_log_file(self):
+        response = app.test_client().get('/logtextfile', json={
+            "name": "log_file_1",
+        })
+        
+        res = json.loads(response.data.decode('utf-8'))
+        assert res == {'log_file_content': 'message:binary_file removed\n'}
+
+    #     response = app.test_client().get('/binaryfile', json={
+    #         "name": "binary_file",
+    #     })
+        
+    #     res = json.loads(response.data.decode('utf-8'))
+    #     assert res == {'message': ""}
+
+    #     response = app.test_client().get('/binaryfile', json={
+    #         "name": "binary",
+    #     })
+        
+    #     res = json.loads(response.data.decode('utf-8'))
+    #     assert res == {'message': 'binary is not exist'}
+
+ 
+    # def test_put_binaryFile(self):
+    #     response = app.test_client().put('/binaryfile', json={
+    #         "name": "binary_file2",
+    #         "path": "directory1"
+    #     })
+
+    #     res = json.loads(response.data.decode('utf-8'))
+    #     assert res == {'message':'binary_file2 was moved to directory1'}
+
+    #     response = app.test_client().put('/binaryfile', json={
+    #         "name": "binary",
+    #         "path": "directory1"
+    #     })
+
+    #     res = json.loads(response.data.decode('utf-8'))
+    #     assert res == {'message':'binary is not exist'}
+
+    #     response = app.test_client().put('/binaryfile', json={
+    #         "name": "binary_file2",
+    #         "path": "dirdirdir"
+    #     })
+
+    #     res = json.loads(response.data.decode('utf-8'))
+    #     assert res == {'message':'dirdirdir is not exist'}
+
+    # def test_delete_directory_(self):
+    #     response = app.test_client().delete('/binaryfile', json={
+    #         "name": "binary_file"
+    #     })
+    #     res = json.loads(response.data.decode('utf-8'))
+    #     assert res == {'message':'binary_file removed'}
+
+    #     response = app.test_client().delete('/binaryfile', json={
+    #         "name": "binary_file"
+    #     })
+    #     res = json.loads(response.data.decode('utf-8'))
+    #     assert res == {'message':'binary_file is not exist'}

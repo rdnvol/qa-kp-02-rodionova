@@ -8,7 +8,10 @@ from buffer_file import BufferFile
 app = Flask(__name__)
 api = Api(app)
 
-parent = Directory('parent', 20)
+parent = Directory('parent', 30)
+log = LogTextFile("log_file")
+log.parent = parent
+parent.content.append(log)
 
 binary = BinaryFile("binary_file")
 binary.content = "content"
@@ -17,7 +20,7 @@ buffer = BufferFile("buffer_file", 10)
 
 directory = Directory("dir1", 2)
 
-log = LogTextFile("log_file")
+# log = LogTextFile("log_file")
 
 @app.route('/')
 
@@ -95,9 +98,6 @@ class DirectoryApi(Resource):
         data = request.get_json()
         for startDir in parent.content:
             if startDir.name == data["name"]:
-                print("=====")
-                for i in startDir.content:
-                    print(i.name)
                 return startDir.__get_content_list__()
             
         return jsonify({'message': 'Directory is not exist'})
@@ -112,14 +112,12 @@ class DirectoryApi(Resource):
 
     def put(self):       
         data = request.get_json()
-        
         for startDir in parent.content:
             if startDir.name == data["name"]:
-
                 for element in data["content"]:
                     res = switch(element, startDir)
-
-            return jsonify({'message': 'directory is updated'})
+                    
+                return jsonify({'message': 'directory is updated'})
         return jsonify({'message': 'Directory is not exist'})
 
 
@@ -153,8 +151,7 @@ class BinaryFileApi(Resource):
 
 
     def get(self):
-        data = request.get_json() 
-
+        data = request.get_json()
         res = search(parent, data["name"])
         if res == None:
             return jsonify({'message': data["name"] + ' is not exist'})
@@ -191,21 +188,42 @@ class BinaryFileApi(Resource):
             fileForDelete.__delete_binory_file__()
             for i in path.content:
                 print(i.name)
+
+            print(type(log), log.name, log.parent)
+            log.__append_new_line__('message:' + fileForDelete.name + ' removed')
             return jsonify({'message': fileForDelete.name + ' removed'})
 
-class BufferApi(Resource):
-    def __init__(self):
-        self.buffer = buffer
 
-    def get(self):
-        return jsonify({"directory": "true"})
+class LogTextFileApi(Resource):
+    def __init__(self):
+        self.logText = LogTextFile
 
     def post(self): 
         data = request.get_json() 
         
-        directory = Directory(data["name"], data["maxElNumber"])
-        
-        return jsonify({'message': 'Directory is successfully created'})
+        logFile = LogTextFile(data["name"])
+        log.name = logFile.name
+        # log.parent = parent
+        return jsonify({'message': 'Log file is successfully created'})
+
+    def get(self):
+        data = request.get_json() 
+        # # print(data["name"])
+        # print("==")
+        # print("---------------")
+        # print(log)
+        # print(log.parent.name)
+        # for i in parent.content:
+        #         print(i)
+        # print("---------------")
+        # # log.content = "lala"
+        # print(log.content)
+
+        res = search(parent, data["name"])
+        logContent = res.__read_log_file__()
+        print(logContent)
+
+        return jsonify({"log_file_content": logContent})
 
     def put(self):
         pass
@@ -214,12 +232,9 @@ class BufferApi(Resource):
         pass
 
 
-class LogTextFileApi(Resource):
+class BufferApi(Resource):
     def __init__(self):
-        self.logText = LogTextFile
-
-    def get(self):
-        return jsonify({"directory": "true"})
+        self.buffer = buffer
 
     def post(self): 
         data = request.get_json() 
@@ -227,6 +242,15 @@ class LogTextFileApi(Resource):
         directory = Directory(data["name"], data["maxElNumber"])
         
         return jsonify({'message': 'Directory is successfully created'})
+
+    def get(self):
+        data = request.get_json() 
+        
+        binaryFile = BinaryFile(data["name"], parent = parent)
+        binaryFile.content = "It is 'BinaryFile2' file"
+        
+        return jsonify({'message': 'Binary file is successfully created'})        
+
 
     def put(self):
         pass
