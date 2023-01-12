@@ -8,20 +8,22 @@ class LogTextFile:
         if type(parent) is Directory:
             parent.content.append(self)
 
-    def __delete_log_file__(self):
+    def __delete_log_file__(self) -> None:
         self.parent.content.pop(self.parent.content.index(self))
         del self
 
     def __move_log_file__(self, path):
+        print(path)
         if type(path) != Directory or None:
-            raise OverflowError('incorrect path' + path)
+            return'incorrect path: ' + path
 
         if len(path.content) + 1 > path.maxElementsNumber:
-            raise OverflowError('there are no space for new file in directory: ' + path.name)
+            return 'there are no space for new file in directory: ' + path.name
 
         self.parent.content.pop(self.parent.content.index(self))
         path.content.append(self)
         self.parent = path
+        return  self.name + ' is moved'
 
     def __read_log_file__(self):
         return self.content

@@ -157,70 +157,110 @@ class TestBinaryFileApi():
 
 class TestLogFileApi():
     
-    def test_create_binary_file(self):
+    def test_create_log_file(self):
         response = app.test_client().post('/logtextfile', json={
             "name": "log_file_1",
-            "parent": "parent"
+            "path": "parent"
         })
+
         assert response.data != None
 
     def test_get_log_file(self):
         response = app.test_client().get('/logtextfile', json={
-            "name": "log_file_1",
+            "name": "log_file",
         })
         
         res = json.loads(response.data.decode('utf-8'))
         assert res == {'log_file_content': 'message:binary_file removed\n'}
 
-    #     response = app.test_client().get('/binaryfile', json={
-    #         "name": "binary_file",
-    #     })
+        response = app.test_client().get('/logtextfile', json={
+            "name": "log_file_1",
+        })
         
-    #     res = json.loads(response.data.decode('utf-8'))
-    #     assert res == {'message': ""}
+        res = json.loads(response.data.decode('utf-8'))
+        assert res == {'log_file_content': ''}
 
-    #     response = app.test_client().get('/binaryfile', json={
-    #         "name": "binary",
-    #     })
+    def test_patch_log_file_path(self):
+        response = app.test_client().patch('/logtextfile', json={
+            "name": "log_file_1",
+            "path": "directory1"
+        })
         
-    #     res = json.loads(response.data.decode('utf-8'))
-    #     assert res == {'message': 'binary is not exist'}
+        res = json.loads(response.data.decode('utf-8'))
+        assert res == {'message': 'log_file_1 is moved'}
+
+
+    def test_delete_directory_(self):
+        response = app.test_client().delete('/logtextfile', json={
+            "name": "log_file_1"
+        })
+        res = json.loads(response.data.decode('utf-8'))
+        assert res == {'message':'log_file_1 deleted'}
+
+        response = app.test_client().delete('/logtextfile', json={
+            "name": "log_file_1"
+        })
+        res = json.loads(response.data.decode('utf-8'))
+        assert res == {'message':'log_file_1 is not exist'}
+
+
+class TestBufferFileApi():
+    
+    def test_create_buffer_file(self):
+        response = app.test_client().post('/bufferfile', json={
+            "name": "buffer_file",
+            "maxSize": 4,
+            "parent": "directory1"
+        })
+        assert response.data != None
 
  
-    # def test_put_binaryFile(self):
-    #     response = app.test_client().put('/binaryfile', json={
-    #         "name": "binary_file2",
-    #         "path": "directory1"
-    #     })
+    def test_patch_buffer_file(self):
+        response = app.test_client().patch('/bufferfile', json={
+            "name": "buffer_file",
+            "operation": "push",
+            "line": "line1"
+        })
 
-    #     res = json.loads(response.data.decode('utf-8'))
-    #     assert res == {'message':'binary_file2 was moved to directory1'}
+        res = json.loads(response.data.decode('utf-8'))
+        assert res == {'message': 'the line was pushed'}
 
-    #     response = app.test_client().put('/binaryfile', json={
-    #         "name": "binary",
-    #         "path": "directory1"
-    #     })
+        response = app.test_client().patch('/bufferfile', json={
+            "name": "buffer_file",
+            "operation": "push",
+            "line": "line2"
+        })
 
-    #     res = json.loads(response.data.decode('utf-8'))
-    #     assert res == {'message':'binary is not exist'}
+        res = json.loads(response.data.decode('utf-8'))
+        assert res == {'message': 'the line was pushed'}
 
-    #     response = app.test_client().put('/binaryfile', json={
-    #         "name": "binary_file2",
-    #         "path": "dirdirdir"
-    #     })
+        response = app.test_client().patch('/bufferfile', json={
+            "name": "buffer_file",
+            "operation": "consume"
+        })
 
-    #     res = json.loads(response.data.decode('utf-8'))
-    #     assert res == {'message':'dirdirdir is not exist'}
+        res = json.loads(response.data.decode('utf-8'))
+        assert res == {'message':'first line was consume'}
 
-    # def test_delete_directory_(self):
-    #     response = app.test_client().delete('/binaryfile', json={
-    #         "name": "binary_file"
-    #     })
-    #     res = json.loads(response.data.decode('utf-8'))
-    #     assert res == {'message':'binary_file removed'}
+        response = app.test_client().patch('/bufferfile', json={
+            "name": "buffer_file",
+            "operation": "move",
+            "path": "parent"
+        })
 
-    #     response = app.test_client().delete('/binaryfile', json={
-    #         "name": "binary_file"
-    #     })
-    #     res = json.loads(response.data.decode('utf-8'))
-    #     assert res == {'message':'binary_file is not exist'}
+        res = json.loads(response.data.decode('utf-8'))
+        assert res == {'message':'buffer_file is moved'}
+
+
+    def test_delete_buffer_file_(self):
+        response = app.test_client().delete('/bufferfile', json={
+            "name": "buffer_file"
+        })
+        res = json.loads(response.data.decode('utf-8'))
+        assert res == {'message':'buffer_file deleted'}
+
+        response = app.test_client().delete('/bufferfile', json={
+            "name": "buffer_file"
+        })
+        res = json.loads(response.data.decode('utf-8'))
+        assert res == {'message':'buffer_file is not exist'}

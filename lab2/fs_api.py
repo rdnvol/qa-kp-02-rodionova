@@ -24,6 +24,12 @@ directory = Directory("dir1", 2)
 
 @app.route('/')
 
+def printDirContent(dir, separetor):
+    print(separetor)
+    for i in dir.content:
+        print(i.name)
+    print(separetor)
+
 def switch(item, parentPath):
     if item["operation"] == "create":
         switch_create(item, parentPath) 
@@ -172,8 +178,6 @@ class BinaryFileApi(Resource):
                 return jsonify({'message': data["path"] + ' is not exist'})
             else:
                 fileForMove.__move_binory_file__(path)
-                for i in path.content:
-                    print(i.name)
                 return jsonify({'message': fileForMove.name + ' was moved to ' + path.name})
 
 
@@ -186,10 +190,7 @@ class BinaryFileApi(Resource):
         else:
             path = fileForDelete.parent
             fileForDelete.__delete_binory_file__()
-            for i in path.content:
-                print(i.name)
 
-            print(type(log), log.name, log.parent)
             log.__append_new_line__('message:' + fileForDelete.name + ' removed')
             return jsonify({'message': fileForDelete.name + ' removed'})
 
@@ -200,36 +201,39 @@ class LogTextFileApi(Resource):
 
     def post(self): 
         data = request.get_json() 
-        
-        logFile = LogTextFile(data["name"])
-        log.name = logFile.name
-        # log.parent = parent
+        logFile = LogTextFile(data["name"], parent)
+
         return jsonify({'message': 'Log file is successfully created'})
 
     def get(self):
         data = request.get_json() 
-        # # print(data["name"])
-        # print("==")
-        # print("---------------")
-        # print(log)
-        # print(log.parent.name)
-        # for i in parent.content:
-        #         print(i)
-        # print("---------------")
-        # # log.content = "lala"
-        # print(log.content)
-
         res = search(parent, data["name"])
         logContent = res.__read_log_file__()
         print(logContent)
 
         return jsonify({"log_file_content": logContent})
 
-    def put(self):
-        pass
+    def patch(self):
+        data = request.get_json() 
+        res = search(parent, data["name"])
+        path = search(parent, data["path"])
+        if res == None:
+            return jsonify({'message': data["name"] + ' is not exist'})
+        else: 
+            message = res.__move_log_file__(path)
+            log.__append_new_line__(message)
+            return jsonify({'message': message})
+            
 
     def delete(self):
-        pass
+        data = request.get_json() 
+        res = search(parent, data["name"])
+        
+        if res == None:
+            return jsonify({'message': data["name"] + ' is not exist'})
+        else:       
+            res.__delete_log_file__()
+            return jsonify({'message': res.name + ' deleted'})
 
 
 class BufferApi(Resource):
@@ -238,25 +242,52 @@ class BufferApi(Resource):
 
     def post(self): 
         data = request.get_json() 
+        path = search(parent, data["parent"])
+        buffer_file = BufferFile(data["name"], data["maxSize"], path)
         
-        directory = Directory(data["name"], data["maxElNumber"])
-        
-        return jsonify({'message': 'Directory is successfully created'})
+        return jsonify({'message': 'Directory is successfully created'})     
 
-    def get(self):
+
+    def patch(self):
         data = request.get_json() 
+        res = search(parent, data["name"])
         
-        binaryFile = BinaryFile(data["name"], parent = parent)
-        binaryFile.content = "It is 'BinaryFile2' file"
-        
-        return jsonify({'message': 'Binary file is successfully created'})        
+        if res == None:
+            return jsonify({'message': data["name"] + ' is not exist'})
+        else:   
+            if data["operation"] == "push":
+                message = res.__push_element__(data["line"])
+                print()
+                for i in res.content:
+                    print(i)
+                return jsonify({'message': message})
+            elif data["operation"] == "consume":
+                message = res.__consume_first_line__()
+                print()
+                for i in res.content:
+                    print(i)
+                return jsonify({'message': message})
+            elif data["operation"] == "move":
+                if data["path"] == "parent":
+                    message = res.__move_buffer_file__(parent)
+                else:
+                    path = search(parent, data["path"])
+                    message = res.__move_buffer_file__(path)
+                
+                return jsonify({'message': message})
+            else:
+                return jsonify({'message': 'operation [' + data["operation"] + '] is not exist'})
 
-
-    def put(self):
-        pass
 
     def delete(self):
-        pass
+        data = request.get_json() 
+        res = search(parent, data["name"])
+        
+        if res == None:
+            return jsonify({'message': data["name"] + ' is not exist'})
+        else:       
+            res.__delete_buffer_file__()
+            return jsonify({'message': res.name + ' deleted'})
 
 
 
