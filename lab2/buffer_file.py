@@ -15,21 +15,24 @@ class BufferFile:
 
     def __move_buffer_file__(self, path) -> None:
         if type(path) != Directory or None:
-            raise OverflowError('incorrect path' + path)
+            return'incorrect path' + path
 
         if len(path.content) + 1 > path.maxElementsNumber:
-            raise OverflowError('there are no space for new file in directory: ' + path.name)
+            return'there are no space for new file in directory: ' + path.name
 
         self.parent.content.pop(self.parent.content.index(self))
         path.content.append(self)
         self.parent = path
+        return self.name + ' is moved'
 
     def __push_element__(self, item) -> None:
         if len(self.content) + 1 <=  self.MaxBufferSize:
             self.content.append(item)
+            return 'the line was pushed'
         else:
-            raise OverflowError('there are no space in buffer file: ' + self.name)
+            return'there are no space in buffer file: ' + self.name
 
     def __consume_first_line__(self) -> None:
         if len(self.content) >= 1:
             self.content.pop(0)
+        return 'first line was consume'

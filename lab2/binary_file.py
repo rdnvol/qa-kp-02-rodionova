@@ -1,6 +1,6 @@
 from directory import Directory
 
-class LogTextFile:
+class BinaryFile:
     def __init__(self, fileName, parent = None) -> None:
         self.name = fileName
         self.parent = parent
@@ -8,11 +8,11 @@ class LogTextFile:
         if type(parent) is Directory:
             parent.content.append(self)
 
-    def __delete_log_file__(self) -> None:
+    def __delete_binory_file__(self) -> None:
         self.parent.content.pop(self.parent.content.index(self))
         del self
 
-    def __move_log_file__(self, path) -> None:
+    def __move_binory_file__(self, path) -> None:
         if type(path) != Directory or None:
             raise OverflowError('incorrect path' + path)
 
@@ -23,9 +23,5 @@ class LogTextFile:
         path.content.append(self)
         self.parent = path
 
-    def __read_log_file__(self) -> None:
+    def __read_binory_file__(self) -> None:
         return self.content
-
-    def __append_new_line__(self, line) -> None:
-        self.content = self.content + line + '\n'
-        return
